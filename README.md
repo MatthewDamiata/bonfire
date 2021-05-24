@@ -1,2 +1,1 @@
 # bonfire
-Social Discord bot
