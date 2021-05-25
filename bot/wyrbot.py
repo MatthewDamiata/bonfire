@@ -10,42 +10,36 @@ intents.members = True
 bot = commands.Bot(command_prefix='>', intents=intents)
 
 @bot.command()
-async def getonidiot(ctx, arg):
-    jah = 0
-    members = ctx.guild.members
-    for member in members:
-        if member.name == arg:
-            jah = member
-    while(True):
-        await ctx.send(jah.mention)
-        await asyncio.sleep(5)
-
-@bot.command()
 async def dog(ctx):
-    embedVar = discord.Embed(title="Random Dog Fact", description="WYRBot", color=0x00ff00)
+    embedVar = discord.Embed(title="Random Dog Fact", description="Bonfire", color=0x00ff00)
     ret = dogPrep()
     embedVar.add_field(name="Fact:", value=ret, inline=False)
     await ctx.send(embed = embedVar)
 
 @bot.command()
 async def cat(ctx):
-    embedVar = discord.Embed(title="Random Cat Fact", description="WYRBot", color=0x00ff00)
+    embedVar = discord.Embed(title="Random Cat Fact", description="Bonfire", color=0x00ff00)
     ret = catPrep()
     embedVar.add_field(name="Fact:", value=ret, inline=False)
-    await ctx.send(ret)
+    await ctx.send(embed = embedVar)
 
 @bot.command()
 async def joke(ctx):
-    embedVar = discord.Embed(title="Random Joke", description="WYRBot", color=0x00ff00)
+    embedVar = discord.Embed(title="Random Joke", description="Bonfire", color=0x00ff00)
     ret = jokePrep()
     embedVar.add_field(name="Fact:", value=ret, inline=False)
-    await ctx.send(ret)
+    await ctx.send(embed = embedVar)
 
 @bot.command()
 async def trivia(ctx):
+    embedVar = discord.Embed(title="Random Trivia Question", description="Bonfire", color=0x00ff00)
     ret = triviaPrep()
-    await ctx.send(ret[0])
-    await ctx.send('||' + ret[1] + '||')
+    embedVar.add_field(name="Question:", value=ret[0], inline=False)
+    await ctx.send(embed = embedVar)
+    embedVarA = discord.Embed(title="Random Trivia Question", description="Bonfire", color=0x00ff00)
+    answer = '||' + ret[1] + '||'
+    embedVarA.add_field(name='Answer', value=answer, inline=False)
+    await ctx.send(embed = embedVarA)
 
 @bot.command()
 async def commands(ctx):
