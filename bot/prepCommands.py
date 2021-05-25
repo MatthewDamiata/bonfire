@@ -25,5 +25,3 @@ def jokePrep():
     req = requests.get(jokeURL)
     req = req.json()['setup'] + ' ' + req.json()['punchline']
     return req
-
-e
