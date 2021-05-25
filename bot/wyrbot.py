@@ -10,9 +10,6 @@ intents = discord.Intents.default()
 intents.members = True
 bot = commands.Bot(command_prefix='>', intents=intents)
 
-client = MongoClient("mongodb+srv://bonfire_app:"+DB_PASS+"@cluster0.ctzl1.mongodb.net/wyr?retryWrites=true&w=majority")
-col = client.positive
-
 @bot.command()
 async def dog(ctx):
     embedVar = discord.Embed(title="Random Dog Fact", description="Bonfire", color=0x00ff00)
@@ -44,13 +41,6 @@ async def trivia(ctx):
     answer = '||' + ret[1] + '||'
     embedVarA.add_field(name='Answer', value=answer, inline=False)
     await ctx.send(embed = embedVarA)
-
-@bot.command()
-async def dbtest(ctx):
-    temp = col.collection.find({})
-    print(temp)
-    for x in temp:
-        await ctx.send(x)
 
 @bot.command()
 async def commands(ctx):
