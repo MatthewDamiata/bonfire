@@ -9,6 +9,13 @@ from tokens import *
 intents = discord.Intents.default()
 intents.members = True
 bot = commands.Bot(command_prefix='>', intents=intents)
+client = MongoClient("mongodb+srv://bonfire_app:"+DB_PASS+"@cluster0.ctzl1.mongodb.net/?retryWrites=true&w=majority")
+db = client.wyr
+col = db.positive
+question_pipeline = [
+        {"$project": {"option": 1, "_id": 1}},
+        {"$sample": {"size": 2}},
+    ]
 
 @bot.command()
 async def dog(ctx):
@@ -41,6 +48,15 @@ async def trivia(ctx):
     answer = '||' + ret[1] + '||'
     embedVarA.add_field(name='Answer', value=answer, inline=False)
     await ctx.send(embed = embedVarA)
+
+@bot.command()
+async def wyr(ctx):
+    embedVar = discord.Embed(title="Would You Rather...", description="Bonfire", color=0x00ff00)
+    randomOptions = list(col.aggregate(question_pipeline))
+    embedVar.add_field(name="Options:", value=":one: "+ randomOptions[0]["option"] + "\n:two: " + randomOptions[1]["option"], inline=False)
+    message = await ctx.send(embed = embedVar)
+    await message.add_reaction("1️⃣")
+    await message.add_reaction("2️⃣")
 
 @bot.command()
 async def commands(ctx):
