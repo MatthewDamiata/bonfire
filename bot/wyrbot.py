@@ -69,14 +69,13 @@ async def wyr(ctx):
 async def on_reaction_add(reaction, user):
     message = reaction.message
     emoji = reaction.emoji
-
+    # if message not embedded do nothing
     if len(message.embeds) == 0:
         return
-
+    # if message not wyr or if reaction is bot do nothing
     if user.bot or message.embeds[0].title != "Would You Rather...":
         print("no action")
         return
-    
     if emoji == "1️⃣":
         print("1 detected")
     if emoji == "2️⃣":
