@@ -65,6 +65,25 @@ async def wyr(ctx):
     await message.add_reaction("1️⃣")
     await message.add_reaction("2️⃣")
 
+@bot.event
+async def on_reaction_add(reaction, user):
+    message = reaction.message
+    emoji = reaction.emoji
+
+    if len(message.embeds) == 0:
+        return
+
+    if user.bot or message.embeds[0].title != "Would You Rather...":
+        print("no action")
+        return
+    
+    if emoji == "1️⃣":
+        print("1 detected")
+    if emoji == "2️⃣":
+        print("2 detected")
+    else:
+        return
+
 @bot.command()
 async def commands(ctx):
     await ctx.send('Commands\n' + 'dog: random dog fact\n' + 'cat: random cat fact\n' + 'joke: random joke\n' + 'trivia: random question\n')
