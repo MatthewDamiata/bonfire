@@ -65,6 +65,13 @@ async def wyr(ctx):
     await message.add_reaction("1️⃣")
     await message.add_reaction("2️⃣")
 
+@bot.command()
+async def hedbanz(ctx):
+    embedVar = discord.Embed(title="Hedbanz", description="🔥 Bonfire", color=COLOR)
+    ret = '||' + hedbanzPrep() + '||'
+    embedVar.add_field(name="Your object:", value="❓ " + ret, inline=False)
+    await ctx.send(embed = embedVar)
+
 @bot.event
 async def on_reaction_add(reaction, user):
     message = reaction.message
