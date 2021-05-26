@@ -1,6 +1,6 @@
 import requests
 
-dogURL = 'https://dog-facts-api.herokuapp.com/api/v1/resources/dogs?number=1'
+dogURL = 'https://dog-api.kinduff.com/api/facts'
 catURL = 'https://catfact.ninja/fact'
 jokeURL = 'https://official-joke-api.appspot.com/random_joke'
 triviaURL = 'https://opentdb.com/api.php?amount=1'
@@ -13,7 +13,7 @@ def triviaPrep():
 
 def dogPrep():
     req = requests.get(dogURL)
-    req = req.json()[0]['fact']
+    req = req.json()['facts'][0]
     return req
 
 def catPrep():
