@@ -1,9 +1,14 @@
 import requests
+import random
+import selenium
+from selenium import webdriver
 
-dogURL = 'https://dog-facts-api.herokuapp.com/api/v1/resources/dogs?number=1'
+dogURL = 'https://dog-api.kinduff.com/api/facts'
 catURL = 'https://catfact.ninja/fact'
 jokeURL = 'https://official-joke-api.appspot.com/random_joke'
 triviaURL = 'https://opentdb.com/api.php?amount=1'
+hedbanzURL = 'https://random-word-form.herokuapp.com/random/'
+gameGalURL = 'https://www.thegamegal.com/word-generator/'
 
 def triviaPrep():
     req = requests.get(triviaURL)
@@ -13,7 +18,7 @@ def triviaPrep():
 
 def dogPrep():
     req = requests.get(dogURL)
-    req = req.json()[0]['fact']
+    req = req.json()['facts'][0]
     return req
 
 def catPrep():
@@ -25,3 +30,18 @@ def jokePrep():
     req = requests.get(jokeURL)
     req = req.json()['setup'] + ' ' + req.json()['punchline']
     return req
+
+def hedbanzPrep():
+    req = requests.get(hedbanzURL + 'animal')
+    req = req.json()[0].capitalize()
+    return req
+
+def gameGalPrep():
+    driver = webdriver.Chrome()
+    driver.get(gameGalURL)
+    newWordButton = find_element_by_id('newword-button')
+    newWordButton.click()
+    gennedWord = find_element_by_id('gennedword')
+    print(gennedWord)
+
+gameGalPrep()
