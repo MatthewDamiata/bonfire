@@ -10,7 +10,7 @@ from tokens import *
 COLOR = 0xe73a4e
 intents = discord.Intents.default()
 intents.members = True
-bot = commands.Bot(command_prefix='>', intents=intents)
+bot = commands.Bot(command_prefix='#', intents=intents)
 client = MongoClient("mongodb+srv://bonfire_app:"+DB_PASS+"@cluster0.ctzl1.mongodb.net/?retryWrites=true&w=majority")
 db = client.wyr
 pos = db.positive
@@ -95,3 +95,4 @@ async def commands(ctx):
     await ctx.send('Commands\n' + 'dog: random dog fact\n' + 'cat: random cat fact\n' + 'joke: random joke\n' + 'trivia: random question\n')
 
 bot.run(AUTH_TOKEN)
+bot.change_presence(status=discord.Status.idle, activity=discord.Game('#help to start!'))
