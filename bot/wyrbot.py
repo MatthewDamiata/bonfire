@@ -7,10 +7,18 @@ from discord.utils import get
 from prepCommands import * 
 from tokens import *
 
+##### BOT ASSETS #####
+
 COLOR = 0xe73a4e
+
+##### BOT CREATIONS & PERMISSIONS #####
+
 intents = discord.Intents.default()
 intents.members = True
 bot = commands.Bot(command_prefix='#', intents=intents)
+
+##### MONGODB CLIENT CONNECTION #####
+
 client = MongoClient("mongodb+srv://bonfire_app:"+DB_PASS+"@cluster0.ctzl1.mongodb.net/?retryWrites=true&w=majority")
 db = client.wyr
 pos = db.positive
@@ -19,6 +27,8 @@ question_pipeline = [
         {"$project": {"option": 1, "_id": 1}},
         {"$sample": {"size": 2}},
     ]
+
+##### COMMANDS #####
 
 @bot.command()
 async def dog(ctx):
@@ -72,17 +82,29 @@ async def hedbanz(ctx):
     embedVar.add_field(name="Your object:", value="❓ " + ret, inline=False)
     await ctx.send(embed = embedVar)
 
+@bot.command()
+async def commands(ctx):
+    await ctx.send('Commands\n' + 'dog: random dog fact\n' + 'cat: random cat fact\n' + 'joke: random joke\n' + 'trivia: random question\n')
+
+#### EVENTS ####
+
+@bot.event
+async def on_ready():
+    await bot.change_presence(status=discord.Status.idle, activity=discord.Game('#help to start!'))
+
 @bot.event
 async def on_reaction_add(reaction, user):
     message = reaction.message
     emoji = reaction.emoji
+
     # if message not embedded do nothing
     if len(message.embeds) == 0:
         return
+
     # if message not wyr or if reaction is bot do nothing
     if user.bot or message.embeds[0].title != "Would You Rather...":
-        print("no action")
         return
+
     if emoji == "1️⃣":
         print("1 detected")
     if emoji == "2️⃣":
@@ -90,9 +112,9 @@ async def on_reaction_add(reaction, user):
     else:
         return
 
-@bot.command()
-async def commands(ctx):
-    await ctx.send('Commands\n' + 'dog: random dog fact\n' + 'cat: random cat fact\n' + 'joke: random joke\n' + 'trivia: random question\n')
+##### RUN #####
+def main():
+    bot.run(AUTH_TOKEN)
 
-bot.run(AUTH_TOKEN)
-bot.change_presence(status=discord.Status.idle, activity=discord.Game('#help to start!'))
+if __name__ == '__main__':
+    main()
