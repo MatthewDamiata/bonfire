@@ -23,6 +23,7 @@ client = MongoClient("mongodb+srv://bonfire_app:"+DB_PASS+"@cluster0.ctzl1.mongo
 db = client.wyr
 pos = db.positive
 neg = db.negative
+pos_ques = db.pos_questions
 question_pipeline = [
         {"$project": {"option": 1, "_id": 1}},
         {"$sample": {"size": 2}},
@@ -107,16 +108,35 @@ async def on_reaction_add(reaction, user):
     if user.bot or message.embeds[0].title != "Would You Rather...":
         return
 
+    opts = message.embeds[0].fields[0].value.splitlines()
+    opt1 = opts[0][6:]
+    opt2 = opts[1][6:]
+
     if emoji == "1️⃣":
-        print("1 detected")
+        if pos_ques.find_one_and_update(
+            {'opt1': "Get $10 every time you sneze", 'opt2': "Your cereal never gets soggy"},
+            {'$inc': {'votes1': 1}}
+        ) == None:
+           pos_ques.find_one_and_update(
+            {'opt1': "Get $10 every time you sneze", 'opt2': "Your cereal never gets soggy"}, # flip strings for opt1 and opt 2
+            {'$inc': {'votes2': 1}}
+        ) 
     if emoji == "2️⃣":
-        print("2 detected")
+        if pos_ques.find_one_and_update(
+            {'opt1': "Get $10 every time you sneeze", 'opt2': "Your cereal never gets soggy"},
+            {'$inc': {'votes2': 1}}
+        ) == None:
+            pos_ques.find_one_and_update(
+            {'opt1': "Get $10 every time you sneze", 'opt2': "Your cereal never gets soggy"}, # flip strings for opt1 and opt 2
+            {'$inc': {'votes1': 1}}
+        ) 
     else:
         return
 
 ##### RUN #####
 
 def main():
+    print("Bot ready")
     bot.run(AUTH_TOKEN)
 
 if __name__ == '__main__':
