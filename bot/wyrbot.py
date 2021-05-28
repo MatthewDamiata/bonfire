@@ -24,6 +24,7 @@ db = client.wyr
 pos = db.positive
 neg = db.negative
 pos_ques = db.pos_questions
+neg_ques = db.neg_questions
 question_pipeline = [
         {"$project": {"option": 1, "_id": 1}},
         {"$sample": {"size": 2}},
@@ -72,9 +73,23 @@ async def wyr(ctx):
     "Displays a would you rather question. React with 1️⃣ or 2️⃣ to see how many people chose that answer!"
     choice = random.randint(0,1)
     col = neg if choice == 0 else pos
-    embedVar = discord.Embed(title="Would You Rather...", description="🔥 Bonfire", color=COLOR)
+    
+    # Query for 2 random options
     randomOptions = list(col.aggregate(question_pipeline))
+   
+    # If there is no entry for either combination of these options, insert a new document
+    if choice == 1:
+        color = COLOR
+        if pos_ques.find_one({'opt1': randomOptions[0]["option"], 'opt2': randomOptions[1]["option"]}) == None and pos_ques.find_one({'opt1': randomOptions[1]["option"], 'opt2': randomOptions[0]["option"]}) == None:
+            pos_ques.insert_one({'opt1': randomOptions[0]["option"], 'opt2': randomOptions[1]["option"], 'votes1': 0, 'votes2': 0})
+    else:
+        # Embed whether the option is negative or positive into the color
+        color = COLOR - 0x1
+        if neg_ques.find_one({'opt1': randomOptions[0]["option"], 'opt2': randomOptions[1]["option"]}) == None and neg_ques.find_one({'opt1': randomOptions[1]["option"], 'opt2': randomOptions[0]["option"]}) == None:
+            neg_ques.insert_one({'opt1': randomOptions[0]["option"], 'opt2': randomOptions[1]["option"], 'votes1': 0, 'votes2': 0})
+    
     # Two options will be guaranteed by pipeline $match
+    embedVar = discord.Embed(title="Would You Rather...", description="🔥 Bonfire", color=COLOR)
     valueMessage = ":one: "+ randomOptions[0]["option"] + "\n:two: " + randomOptions[1]["option"]
     embedVar.add_field(name="Options:", value=valueMessage, inline=False)
     message = await ctx.send(embed = embedVar)
@@ -108,26 +123,31 @@ async def on_reaction_add(reaction, user):
     if user.bot or message.embeds[0].title != "Would You Rather...":
         return
 
+    color = message.embeds[0].colour.value
+
+    col = pos_ques if color == 0xe73a4e else neg_ques
+
     opts = message.embeds[0].fields[0].value.splitlines()
     opt1 = opts[0][6:]
     opt2 = opts[1][6:]
 
     if emoji == "1️⃣":
-        if pos_ques.find_one_and_update(
-            {'opt1': "Get $10 every time you sneze", 'opt2': "Your cereal never gets soggy"},
+        if col.find_one_and_update(
+            {'opt1': opt1, 'opt2': opt2},
             {'$inc': {'votes1': 1}}
         ) == None:
-           pos_ques.find_one_and_update(
-            {'opt1': "Get $10 every time you sneze", 'opt2': "Your cereal never gets soggy"}, # flip strings for opt1 and opt 2
+           col.find_one_and_update(
+            {'opt1': opt2, 'opt2': opt1}, # flip strings for opt1 and opt2
             {'$inc': {'votes2': 1}}
         ) 
+
     if emoji == "2️⃣":
-        if pos_ques.find_one_and_update(
-            {'opt1': "Get $10 every time you sneeze", 'opt2': "Your cereal never gets soggy"},
+        if col.find_one_and_update(
+            {'opt1': opt1, 'opt2': opt2},
             {'$inc': {'votes2': 1}}
         ) == None:
-            pos_ques.find_one_and_update(
-            {'opt1': "Get $10 every time you sneze", 'opt2': "Your cereal never gets soggy"}, # flip strings for opt1 and opt 2
+            col.find_one_and_update(
+            {'opt1': opt2, 'opt2': opt1}, # flip strings for opt1 and opt2
             {'$inc': {'votes1': 1}}
         ) 
     else:
