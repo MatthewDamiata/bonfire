@@ -2,6 +2,10 @@ import requests
 import random
 import discord
 import asyncio
+import io
+import seaborn as sns
+import matplotlib.pyplot as plt
+import pandas as pd
 from discord.ext import commands
 from discord.utils import get
 from pymongo import MongoClient
@@ -70,5 +74,25 @@ def updateWYR(reaction, user, value, pos_ques, neg_ques):
         if doc == None:
             doc = col.find_one_and_update({'opt1': opt2, 'opt2': opt1}, {'$inc': {'votes1': value}}, return_document=ReturnDocument.AFTER) 
     
-    print(doc["opt1"]+ ": " + str(doc["votes1"]))
-    print(doc["opt2"]+ ": " + str(doc["votes2"]))
+    plotVotes(doc["votes1"], doc["votes2"], doc["opt1"], doc["opt2"])
+
+def plotVotes(votes1, votes2, opt1, opt2):
+    sns.set_style("dark")
+    percent1 = votes1 / (votes2 + votes1)
+    percent2 = votes2 / (votes1 + votes2)
+
+    data_stream = io.BytesIO()
+    df = pd.DataFrame({opt1 : [percent1], opt2 : [percent2]})
+    ax = df.plot.barh(stacked=True)
+
+    ax.figure.set_size_inches(6, 0.85)
+    ax.set_title("Would You Rather...")
+    ax.get_legend().remove()
+    plt.subplots_adjust(left = 0.05, right = 0.945, bottom = 0.60, top = 0.75)
+    plt.savefig(data_stream, format='png', bbox_inches="tight", dpi = 100)
+    frame1 = plt.gca()
+    frame1.axes.get_xaxis().set_ticks([])
+    frame1.axes.get_yaxis().set_ticks([])
+    plt.text(0.25, 0.5, str(round(percent1 * 100, 2)) + '%', va = 'center', ha = 'center')
+    plt.text(0.75, 0.5, str(round(percent2 * 100, 2)) + '%', va = 'center', ha = 'center')
+    plt.show()

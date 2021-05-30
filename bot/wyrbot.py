@@ -91,7 +91,7 @@ async def wyr(ctx):
     # Two options will be guaranteed by pipeline $match
     embedVar = discord.Embed(title="Would You Rather...", description="🔥 Bonfire", color=color)
     valueMessage = ":one: "+ randomOptions[0]["option"] + "\n:two: " + randomOptions[1]["option"]
-    embedVar.add_field(name="Options:", value=valueMessage, inline=False)
+    embedVar.add_field(name="Options: (React to vote!)", value=valueMessage, inline=False)
     message = await ctx.send(embed = embedVar)
     await message.add_reaction("1️⃣")
     await message.add_reaction("2️⃣")
