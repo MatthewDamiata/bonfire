@@ -89,7 +89,7 @@ async def wyr(ctx):
             neg_ques.insert_one({'opt1': randomOptions[0]["option"], 'opt2': randomOptions[1]["option"], 'votes1': 0, 'votes2': 0})
     
     # Two options will be guaranteed by pipeline $match
-    embedVar = discord.Embed(title="Would You Rather...", description="🔥 Bonfire", color=COLOR)
+    embedVar = discord.Embed(title="Would You Rather...", description="🔥 Bonfire", color=color)
     valueMessage = ":one: "+ randomOptions[0]["option"] + "\n:two: " + randomOptions[1]["option"]
     embedVar.add_field(name="Options:", value=valueMessage, inline=False)
     message = await ctx.send(embed = embedVar)
@@ -112,46 +112,11 @@ async def on_ready():
 
 @bot.event
 async def on_reaction_add(reaction, user):
-    message = reaction.message
-    emoji = reaction.emoji
+    updateWYR(reaction, user, 1, pos_ques, neg_ques)
 
-    # If message not embedded do nothing
-    if len(message.embeds) == 0:
-        return
-
-    # If message not wyr or if reaction is bot do nothing
-    if user.bot or message.embeds[0].title != "Would You Rather...":
-        return
-
-    color = message.embeds[0].colour.value
-
-    col = pos_ques if color == 0xe73a4e else neg_ques
-
-    opts = message.embeds[0].fields[0].value.splitlines()
-    opt1 = opts[0][6:]
-    opt2 = opts[1][6:]
-
-    if emoji == "1️⃣":
-        if col.find_one_and_update(
-            {'opt1': opt1, 'opt2': opt2},
-            {'$inc': {'votes1': 1}}
-        ) == None:
-           col.find_one_and_update(
-            {'opt1': opt2, 'opt2': opt1}, # flip strings for opt1 and opt2
-            {'$inc': {'votes2': 1}}
-        ) 
-
-    if emoji == "2️⃣":
-        if col.find_one_and_update(
-            {'opt1': opt1, 'opt2': opt2},
-            {'$inc': {'votes2': 1}}
-        ) == None:
-            col.find_one_and_update(
-            {'opt1': opt2, 'opt2': opt1}, # flip strings for opt1 and opt2
-            {'$inc': {'votes1': 1}}
-        ) 
-    else:
-        return
+@bot.event
+async def on_reaction_remove(reaction, user):
+    updateWYR(reaction, user, -1, pos_ques, neg_ques)
 
 ##### RUN #####
 
