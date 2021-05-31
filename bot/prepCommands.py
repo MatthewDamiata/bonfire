@@ -1,10 +1,13 @@
 import requests
+import os
 import random
 import discord
 import asyncio
 import io
 import seaborn as sns
+import matplotlib as mpl
 import matplotlib.pyplot as plt
+import matplotlib.font_manager as font_manager
 import pandas as pd
 from discord.ext import commands
 from discord.utils import get
@@ -77,22 +80,31 @@ def updateWYR(reaction, user, value, pos_ques, neg_ques):
     plotVotes(doc["votes1"], doc["votes2"], doc["opt1"], doc["opt2"])
 
 def plotVotes(votes1, votes2, opt1, opt2):
-    sns.set_style("dark")
+    sns.set(rc={'axes.facecolor':'#2f3136', 'figure.facecolor':'#2f3136'})
+    mpl.rcParams['text.color'] = '#fffff8'
+    mpl.rcParams['font.family'] = 'sans-serif'
+    mpl.rcParams['font.sans-serif'] = 'DejaVu Sans'
+
     percent1 = votes1 / (votes2 + votes1)
     percent2 = votes2 / (votes1 + votes2)
 
     data_stream = io.BytesIO()
     df = pd.DataFrame({opt1 : [percent1], opt2 : [percent2]})
-    ax = df.plot.barh(stacked=True)
-
-    ax.figure.set_size_inches(6, 0.85)
+    ax = df.plot.barh(stacked=True, color=("blue", "red"))
+    ax.figure.set_size_inches(6, 1.5) #0.85
     ax.set_title("Would You Rather...")
-    ax.get_legend().remove()
-    plt.subplots_adjust(left = 0.05, right = 0.945, bottom = 0.60, top = 0.75)
+    legend = plt.legend(loc="upper center", bbox_to_anchor=(0.5, 0.0), fontsize="small")
+    legend.get_frame().set_linewidth(0.0)
+    ax.spines["top"].set_color("#2f3136")
+    ax.spines["bottom"].set_color("#2f3136")
+    ax.spines["left"].set_color("#2f3136")
+    ax.spines["right"].set_color("#2f3136")
+    plt.subplots_adjust(left = 0.05, right = 0.945, bottom = 0.39, top = 0.75)
+    #plt.patch.set_facecolor("#2f3136")
     plt.savefig(data_stream, format='png', bbox_inches="tight", dpi = 100)
     frame1 = plt.gca()
     frame1.axes.get_xaxis().set_ticks([])
     frame1.axes.get_yaxis().set_ticks([])
-    plt.text(0.25, 0.5, str(round(percent1 * 100, 2)) + '%', va = 'center', ha = 'center')
-    plt.text(0.75, 0.5, str(round(percent2 * 100, 2)) + '%', va = 'center', ha = 'center')
+    plt.text(percent1/2, 0.4, str(round(percent1 * 100)) + '%', va = 'center', ha = 'center')
+    plt.text(1 - percent2/2, 0.4, str(round(percent2 * 100)) + '%', va = 'center', ha = 'center')
     plt.show()
