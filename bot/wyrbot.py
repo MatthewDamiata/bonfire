@@ -119,6 +119,14 @@ async def on_reaction_add(reaction, user):
         embedVar.set_image(
             url="attachment://wyr.png"
         )
+        opts = reaction.message.embeds[0].fields[0].value.splitlines()
+        opt1 = opts[0][6:]
+        opt2 = opts[1][6:]
+        newEmbed = discord.Embed(title="Would You Rather...", description="🔥 Bonfire", color=COLOR + 0x1)
+        valueMessage = ":one: "+ opt1 + "\n:two: " + opt2
+        newEmbed.add_field(name="Options: (React to vote!)", value=valueMessage, inline=False)
+
+        await reaction.message.edit(embed = newEmbed)
         await channel.send(embed = embedVar, file = chart)
 
 @bot.event

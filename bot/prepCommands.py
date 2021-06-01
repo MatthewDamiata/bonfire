@@ -51,16 +51,15 @@ def hedbanzPrep():
 def updateWYR(reaction, user, value, pos_ques, neg_ques):
     message = reaction.message
     emoji = reaction.emoji
+    color = message.embeds[0].colour.value
 
     # If message not embedded do nothing
     if len(message.embeds) == 0:
         return None
 
     # If message not wyr or if reaction is bot do nothing
-    if user.bot or message.embeds[0].title != "Would You Rather...":
+    if user.bot or message.embeds[0].title != "Would You Rather..." or color == COLOR + 0x1:
         return None
-
-    color = message.embeds[0].colour.value
 
     col = pos_ques if color == COLOR else neg_ques
 
