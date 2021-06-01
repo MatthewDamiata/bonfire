@@ -54,11 +54,11 @@ def updateWYR(reaction, user, value, pos_ques, neg_ques):
 
     # If message not embedded do nothing
     if len(message.embeds) == 0:
-        return
+        return None
 
     # If message not wyr or if reaction is bot do nothing
     if user.bot or message.embeds[0].title != "Would You Rather...":
-        return
+        return None
 
     color = message.embeds[0].colour.value
 
@@ -77,18 +77,25 @@ def updateWYR(reaction, user, value, pos_ques, neg_ques):
         if doc == None:
             doc = col.find_one_and_update({'opt1': opt2, 'opt2': opt1}, {'$inc': {'votes1': value}}, return_document=ReturnDocument.AFTER) 
     
-    plotVotes(doc["votes1"], doc["votes2"], doc["opt1"], doc["opt2"])
+    return plotVotes(doc["votes1"], doc["votes2"], doc["opt1"], doc["opt2"])
 
-def plotVotes(votes1, votes2, opt1, opt2):
+def setStyles():
     sns.set(rc={'axes.facecolor':'#2f3136', 'figure.facecolor':'#2f3136'})
     mpl.rcParams['text.color'] = '#fffff8'
     mpl.rcParams['font.family'] = 'sans-serif'
     mpl.rcParams['font.sans-serif'] = 'DejaVu Sans'
 
+def plotVotes(votes1, votes2, opt1, opt2):
+    
+    setStyles()
+
     percent1 = votes1 / (votes2 + votes1)
     percent2 = votes2 / (votes1 + votes2)
 
+    # Instead of saving image to server
     data_stream = io.BytesIO()
+
+    # Plot creation
     df = pd.DataFrame({opt1 : [percent1], opt2 : [percent2]})
     ax = df.plot.barh(stacked=True, color=("blue", "red"))
     ax.figure.set_size_inches(6, 1.5) #0.85
@@ -100,11 +107,16 @@ def plotVotes(votes1, votes2, opt1, opt2):
     ax.spines["left"].set_color("#2f3136")
     ax.spines["right"].set_color("#2f3136")
     plt.subplots_adjust(left = 0.05, right = 0.945, bottom = 0.39, top = 0.75)
-    #plt.patch.set_facecolor("#2f3136")
-    plt.savefig(data_stream, format='png', bbox_inches="tight", dpi = 100)
     frame1 = plt.gca()
     frame1.axes.get_xaxis().set_ticks([])
     frame1.axes.get_yaxis().set_ticks([])
     plt.text(percent1/2, 0.4, str(round(percent1 * 100)) + '%', va = 'center', ha = 'center')
     plt.text(1 - percent2/2, 0.4, str(round(percent2 * 100)) + '%', va = 'center', ha = 'center')
-    plt.show()
+    plt.savefig(data_stream, format='png', bbox_inches="tight", dpi = 100)
+    plt.close()
+
+    # Prep for embedding, https://stackoverflow.com/questions/65526991/how-to-embed-images-from-matplotlib-to-discord-py-using-embed-set-image-without
+    data_stream.seek(0)
+    chart = discord.File(data_stream,filename="wyr.png")
+
+    return chart

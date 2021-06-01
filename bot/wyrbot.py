@@ -112,7 +112,14 @@ async def on_ready():
 
 @bot.event
 async def on_reaction_add(reaction, user):
-    updateWYR(reaction, user, 1, pos_ques, neg_ques)
+    channel = reaction.message.channel
+    chart = updateWYR(reaction, user, 1, pos_ques, neg_ques)
+    if chart is not None:
+        embedVar = discord.Embed(title="Voting Results", description="🔥 Bonfire", color=COLOR)
+        embedVar.set_image(
+            url="attachment://wyr.png"
+        )
+        await channel.send(embed = embedVar, file = chart)
 
 @bot.event
 async def on_reaction_remove(reaction, user):
