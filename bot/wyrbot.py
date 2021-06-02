@@ -58,6 +58,12 @@ async def joke(ctx):
     await ctx.send(embed = embedVar)
 
 @bot.command()
+async def hedbanz(ctx):
+    ret = '||' + hedbanzPrep() + '||'
+    embedVar = createEmbed("Animal Hedbanz", "🔥 Bonfire", COLOR, "The animal is (no peeking, guesser!):", "❓ " + ret)
+    await ctx.send(embed = embedVar)
+
+@bot.command()
 async def trivia(ctx):
     # Create and send question
     ret = triviaPrep()
@@ -97,17 +103,11 @@ async def wyr(ctx):
     await message.add_reaction("1️⃣")
     await message.add_reaction("2️⃣")
 
-@bot.command()
-async def hedbanz(ctx):
-    ret = '||' + hedbanzPrep() + '||'
-    embedVar = createEmbed("Animal Hedbanz", "🔥 Bonfire", COLOR, "The animal is (no peeking, guesser!):", "❓ " + ret)
-    await ctx.send(embed = embedVar)
-
 #### EVENTS ####
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(status=discord.Status.online, activity=discord.Game('#help to start!'))
+    await bot.change_presence(status=discord.Status.online, activity=discord.Game('would you rather | #help'))
 
 @bot.event
 async def on_reaction_add(reaction, user):
