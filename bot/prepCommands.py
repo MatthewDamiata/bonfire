@@ -22,10 +22,28 @@ hedbanzURL = 'https://random-word-form.herokuapp.com/random/'
 
 COLOR = 0xe73a4e
 
+def createEmbed(title, description, color, name, value):
+    embedVar = discord.Embed(title=title, description=description, color=color)
+    embedVar.add_field(name=name, value=value, inline=False)
+    return embedVar
+
+
+def helpPrep():
+    ret = '''
+            \n
+            **#dog** → Sends a dog fact.\n
+            **#cat** → Sends a cat fact.\n
+            **#joke** → Sends an absolutely hilarious joke.\n
+            **#trivia** → Sends a trivia question, then another message with the answer in a spoiler.\n
+            **#hedbanz** → Sends an animal which everyone can see except one person. That person has to interrogate others to find out what animal they are.\n
+            **#wyr** → Sends a Would You Rather question. React to vote on which you would choose. Then Bonfire sends a graph showing what percentage of people chose each option.
+            '''
+    return ret
+
 def triviaPrep():
     req = requests.get(triviaURL)
-    q = req.json()['results'][0]['question'].replace('&quot;', '\"').replace('&#039;', '\'')
-    ans = req.json()['results'][0]['correct_answer'].replace('&quot;', '\"').replace('&#039;', '\'')
+    q = req.json()['results'][0]['question'].replace('&quot;', '\"').replace('&#039;', '\'').replace('&rsquo;', '\'')
+    ans = req.json()['results'][0]['correct_answer'].replace('&quot;', '\"').replace('&#039;', '\'').replace('&rsquo;', '\'')
     return [q, ans]
 
 def dogPrep():
