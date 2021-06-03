@@ -76,6 +76,24 @@ async def trivia(ctx):
     await ctx.send(embed = embedVarQuestion)
 
 @bot.command()
+async def truth(ctx):
+    ret = 'Placeholder'
+    embedVar = createEmbed("Truth or Dare", "🔥 Bonfire", COLOR, "Truth 😲", ret)
+    await ctx.send(embed = embedVar)
+
+@bot.command()
+async def dare(ctx):
+    ret = 'Placeholder'
+    embedVar = createEmbed("Truth or Dare", "🔥 Bonfire", COLOR, "Dare 😈", ret)
+    await ctx.send(embed = embedVar)
+
+@bot.command()
+async def nhie(ctx):
+    ret = 'Placeholder'
+    embedVar = createEmbed("Never Have I Ever...", "🔥 Bonfire", COLOR, "NHIE 🤫", ret)
+    await ctx.send(embed = embedVar)
+
+@bot.command()
 async def wyr(ctx):
     choice = random.randint(0,1)
     col = neg if choice == 0 else pos
