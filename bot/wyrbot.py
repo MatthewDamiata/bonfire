@@ -21,15 +21,26 @@ bot.remove_command('help')
 ##### MONGODB CLIENT CONNECTION #####
 
 client = MongoClient("mongodb+srv://bonfire_app:"+DB_PASS+"@cluster0.ctzl1.mongodb.net/?retryWrites=true&w=majority")
-db = client.wyr
-pos = db.positive
-neg = db.negative
-pos_ques = db.pos_questions
-neg_ques = db.neg_questions
+wyr = client.wyr
+pos = wyr.positive
+neg = wyr.negative
+pos_ques = wyr.pos_questions
+neg_ques = wyr.neg_questions
+tod = client.truth_or_dare
+truth_col = tod.truth
+dare_col = tod.dare
 question_pipeline = [
-        {"$project": {"option": 1, "_id": 1}},
-        {"$sample": {"size": 2}},
-    ]
+    {"$project": {"option": 1, "_id": 1}},
+    {"$sample": {"size": 2}},
+]
+dare_pipeline = [
+    {"$project": {"dare_text": 1, "_id": 1}},
+    {"$sample": {"size": 1}},
+]
+truth_pipeline = [
+    {"$project": {"truth_text": 1, "_id": 1}},
+    {"$sample": {"size": 1}},
+]
 
 ##### COMMANDS #####
 
@@ -77,13 +88,15 @@ async def trivia(ctx):
 
 @bot.command()
 async def truth(ctx):
-    ret = 'Placeholder'
+    randomTruth = list(truth_col.aggregate(truth_pipeline))
+    ret = randomTruth[0]["truth_text"]
     embedVar = createEmbed("Truth or Dare", "🔥 Bonfire", COLOR, "Truth 😲", ret)
     await ctx.send(embed = embedVar)
 
 @bot.command()
 async def dare(ctx):
-    ret = 'Placeholder'
+    randomDare = list(dare_col.aggregate(dare_pipeline))
+    ret = randomDare[0]["dare_text"]
     embedVar = createEmbed("Truth or Dare", "🔥 Bonfire", COLOR, "Dare 😈", ret)
     await ctx.send(embed = embedVar)
 

@@ -34,9 +34,12 @@ def helpPrep():
             **#dog** → Sends a dog fact.\n
             **#cat** → Sends a cat fact.\n
             **#joke** → Sends an absolutely hilarious joke.\n
+            **#dare** → Sends a dare (truth or dare).\n
+            **#truth** → Sends a truth question (truth or dare).\n
             **#trivia** → Sends a trivia question, then another message with the answer in a spoiler.\n
             **#hedbanz** → Sends an animal which everyone can see except one person. That person has to interrogate others to find out what animal they are.\n
-            **#wyr** → Sends a Would You Rather question. React to vote on which you would choose. Then Bonfire sends a graph showing what percentage of people chose each option.
+            **#wyr** → Sends a Would You Rather question. React to vote on which you would choose. Then Bonfire sends a graph showing what percentage of people chose each option.\n
+            **#nhie** → Sends a Never Have I Ever question. React to indicate whether or not you have done the action. Then Bonfire sends a graph showing what percentage of people have done the action.
             '''
     return ret
 
