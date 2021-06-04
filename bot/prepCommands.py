@@ -99,6 +99,29 @@ def updateWYR(reaction, user, value, pos_ques, neg_ques):
     
     return plotVotes(doc["votes1"], doc["votes2"], doc["opt1"], doc["opt2"])
 
+def updateNHIE(reaction, user, nhie_col):
+    message = reaction.message
+    emoji = reaction.emoji
+    color = message.embeds[0].colour.value
+
+    # If message not embedded do nothing
+    if len(message.embeds) == 0:
+        return None
+
+    # If message not wyr or if reaction is bot do nothing
+    if user.bot or message.embeds[0].title != "Never Have I Ever..." or color == COLOR + 0x1:
+        return None
+
+    opt = message.embeds[0].fields[0].value[18:]
+
+    if emoji == "✅":
+        doc = nhie_col.find_one_and_update({'nhie_text': opt}, {'$inc': {'have': 1}}, return_document=ReturnDocument.AFTER)
+       
+    if emoji == "❌":
+        doc = nhie_col.find_one_and_update({'nhie_text': opt}, {'$inc': {'have_not': 1}}, return_document=ReturnDocument.AFTER)    
+
+    return plotNHIE(doc["have"], doc["have_not"], doc["nhie_text"])
+
 def setStyles():
     sns.set(rc={'axes.facecolor':'#2f3136', 'figure.facecolor':'#2f3136'})
     mpl.rcParams['text.color'] = '#fffff8'
@@ -138,5 +161,41 @@ def plotVotes(votes1, votes2, opt1, opt2):
     # Prep for embedding, https://stackoverflow.com/questions/65526991/how-to-embed-images-from-matplotlib-to-discord-py-using-embed-set-image-without
     data_stream.seek(0)
     chart = discord.File(data_stream,filename="wyr.png")
+
+    return chart
+
+def plotNHIE(have, have_not, nhie_text):
+    
+    setStyles()
+
+    percent1 = have / (have_not + have)
+    percent2 = have_not / (have + have_not)
+
+    # Instead of saving image to server
+    data_stream = io.BytesIO()
+
+    # Plot creation
+    df = pd.DataFrame({"Have" : [percent1], "Have not" : [percent2]})
+    ax = df.plot.barh(stacked=True, color=("green", "red"))
+    ax.figure.set_size_inches(6, 1.5) #0.85
+    ax.set_title("Never Have I Ever...")
+    legend = plt.legend(loc="upper center", bbox_to_anchor=(0.5, 0.0), fontsize="small")
+    legend.get_frame().set_linewidth(0.0)
+    ax.spines["top"].set_color("#2f3136")
+    ax.spines["bottom"].set_color("#2f3136")
+    ax.spines["left"].set_color("#2f3136")
+    ax.spines["right"].set_color("#2f3136")
+    plt.subplots_adjust(left = 0.05, right = 0.945, bottom = 0.39, top = 0.75)
+    frame1 = plt.gca()
+    frame1.axes.get_xaxis().set_ticks([])
+    frame1.axes.get_yaxis().set_ticks([])
+    plt.text(percent1/2, 0.4, str(round(percent1 * 100)) + '%', va = 'center', ha = 'center')
+    plt.text(1 - percent2/2, 0.4, str(round(percent2 * 100)) + '%', va = 'center', ha = 'center')
+    plt.savefig(data_stream, format='png', bbox_inches="tight", dpi = 100)
+    plt.close()
+
+    # Prep for embedding, https://stackoverflow.com/questions/65526991/how-to-embed-images-from-matplotlib-to-discord-py-using-embed-set-image-without
+    data_stream.seek(0)
+    chart = discord.File(data_stream,filename="nhie.png")
 
     return chart

@@ -21,14 +21,21 @@ bot.remove_command('help')
 ##### MONGODB CLIENT CONNECTION #####
 
 client = MongoClient("mongodb+srv://bonfire_app:"+DB_PASS+"@cluster0.ctzl1.mongodb.net/?retryWrites=true&w=majority")
+
 wyr = client.wyr
+tod = client.truth_or_dare
+nhieDB = client.nhie
+
 pos = wyr.positive
 neg = wyr.negative
+
 pos_ques = wyr.pos_questions
 neg_ques = wyr.neg_questions
-tod = client.truth_or_dare
+
 truth_col = tod.truth
 dare_col = tod.dare
+nhie_col = nhieDB.opts
+
 question_pipeline = [
     {"$project": {"option": 1, "_id": 1}},
     {"$sample": {"size": 2}},
@@ -41,7 +48,10 @@ truth_pipeline = [
     {"$project": {"truth_text": 1, "_id": 1}},
     {"$sample": {"size": 1}},
 ]
-
+nhie_pipeline = [
+    {"$project": {"nhie_text": 1, "_id": 1}},
+    {"$sample": {"size": 1}},
+]
 ##### COMMANDS #####
 
 @bot.command()
@@ -102,9 +112,14 @@ async def dare(ctx):
 
 @bot.command()
 async def nhie(ctx):
-    ret = 'Placeholder'
-    embedVar = createEmbed("Never Have I Ever...", "🔥 Bonfire", COLOR, "NHIE 🤫", ret)
-    await ctx.send(embed = embedVar)
+    randomNHIE = list(nhie_col.aggregate(nhie_pipeline))
+    ret = randomNHIE[0]["nhie_text"]
+    embedVar = createEmbed("Never Have I Ever...", "🔥 Bonfire", COLOR, "NHIE 🤫", "Never have I ever " + ret)
+    
+    message = await ctx.send(embed = embedVar)
+   
+    await message.add_reaction("✅")
+    await message.add_reaction("❌")
 
 @bot.command()
 async def wyr(ctx):
@@ -143,8 +158,10 @@ async def on_ready():
 @bot.event
 async def on_reaction_add(reaction, user):
     channel = reaction.message.channel
-    chart = updateWYR(reaction, user, 1, pos_ques, neg_ques)
-    if chart is not None:
+    
+    # WYR
+    chartWYR = updateWYR(reaction, user, 1, pos_ques, neg_ques)
+    if chartWYR is not None:
         embedVar = discord.Embed(title="Voting Results", description="🔥 Bonfire", color=COLOR)
         embedVar.set_image(
             url="attachment://wyr.png"
@@ -157,7 +174,21 @@ async def on_reaction_add(reaction, user):
         newEmbed.add_field(name="Options: (React to vote!)", value=valueMessage, inline=False)
 
         await reaction.message.edit(embed = newEmbed)
-        await channel.send(embed = embedVar, file = chart)
+        await channel.send(embed = embedVar, file = chartWYR)
+    
+    # NHIE
+    chartNHIE = updateNHIE(reaction, user, nhie_col)
+    if chartNHIE is not None:
+        embedVar = discord.Embed(title="NHIE Results", description="🔥 Bonfire", color=COLOR)
+        embedVar.set_image(
+            url="attachment://nhie.png"
+        )
+        newEmbed = discord.Embed(title="Never Have I Ever...", description="🔥 Bonfire", color=COLOR + 0x1)
+        valueMessage = "Never have I ever " + reaction.message.embeds[0].fields[0].value[18:]
+        newEmbed.add_field(name="NHIE 🤫", value=valueMessage, inline=False)
+
+        await reaction.message.edit(embed = newEmbed)
+        await channel.send(embed = embedVar, file = chartNHIE)
 
 @bot.event
 async def on_reaction_remove(reaction, user):
