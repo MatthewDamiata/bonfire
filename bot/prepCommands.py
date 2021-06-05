@@ -79,10 +79,13 @@ def updateWYR(reaction, user, value, pos_ques, neg_ques):
         return None
 
     # If message not wyr or if reaction is bot do nothing
-    if user.bot or message.embeds[0].title != "Would You Rather..." or color == COLOR + 0x1:
+    if user.bot or message.embeds[0].title != "Would You Rather...":
         return None
 
-    col = pos_ques if color == COLOR else neg_ques
+    if color == COLOR or color == COLOR + 0x1:
+        col = pos_ques
+    else:
+        col = neg_ques
 
     opts = message.embeds[0].fields[0].value.splitlines()
     opt1 = opts[0][6:]
@@ -96,10 +99,11 @@ def updateWYR(reaction, user, value, pos_ques, neg_ques):
         doc = col.find_one_and_update({'opt1': opt1, 'opt2': opt2}, {'$inc': {'votes2': value}}, return_document=ReturnDocument.AFTER)
         if doc == None:
             doc = col.find_one_and_update({'opt1': opt2, 'opt2': opt1}, {'$inc': {'votes1': value}}, return_document=ReturnDocument.AFTER) 
-    
-    return plotVotes(doc["votes1"], doc["votes2"], doc["opt1"], doc["opt2"])
+    if color == COLOR or color == COLOR - 0x2:
+        return plotVotes(doc["votes1"], doc["votes2"], doc["opt1"], doc["opt2"])
+    return None
 
-def updateNHIE(reaction, user, nhie_col):
+def updateNHIE(reaction, user, value, nhie_col):
     message = reaction.message
     emoji = reaction.emoji
     color = message.embeds[0].colour.value
@@ -109,18 +113,20 @@ def updateNHIE(reaction, user, nhie_col):
         return None
 
     # If message not wyr or if reaction is bot do nothing
-    if user.bot or message.embeds[0].title != "Never Have I Ever..." or color == COLOR + 0x1:
+    if user.bot or message.embeds[0].title != "Never Have I Ever...":
         return None
 
     opt = message.embeds[0].fields[0].value[18:]
 
     if emoji == "✅":
-        doc = nhie_col.find_one_and_update({'nhie_text': opt}, {'$inc': {'have': 1}}, return_document=ReturnDocument.AFTER)
+        doc = nhie_col.find_one_and_update({'nhie_text': opt}, {'$inc': {'have': value}}, return_document=ReturnDocument.AFTER)
        
     if emoji == "❌":
-        doc = nhie_col.find_one_and_update({'nhie_text': opt}, {'$inc': {'have_not': 1}}, return_document=ReturnDocument.AFTER)    
+        doc = nhie_col.find_one_and_update({'nhie_text': opt}, {'$inc': {'have_not': value}}, return_document=ReturnDocument.AFTER)    
 
-    return plotNHIE(doc["have"], doc["have_not"], doc["nhie_text"])
+    if color != COLOR + 0x1:
+        return plotNHIE(doc["have"], doc["have_not"], doc["nhie_text"])
+    return None
 
 def setStyles():
     sns.set(rc={'axes.facecolor':'#2f3136', 'figure.facecolor':'#2f3136'})

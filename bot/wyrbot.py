@@ -136,7 +136,7 @@ async def wyr(ctx):
             pos_ques.insert_one({'opt1': randomOptions[0]["option"], 'opt2': randomOptions[1]["option"], 'votes1': 0, 'votes2': 0})
     else:
         # Embed whether the option is negative or positive into the color
-        color = COLOR - 0x1
+        color = COLOR - 0x2
         if neg_ques.find_one({'opt1': randomOptions[0]["option"], 'opt2': randomOptions[1]["option"]}) == None and neg_ques.find_one({'opt1': randomOptions[1]["option"], 'opt2': randomOptions[0]["option"]}) == None:
             neg_ques.insert_one({'opt1': randomOptions[0]["option"], 'opt2': randomOptions[1]["option"], 'votes1': 0, 'votes2': 0})
     
@@ -158,6 +158,7 @@ async def on_ready():
 @bot.event
 async def on_reaction_add(reaction, user):
     channel = reaction.message.channel
+    curr_color = reaction.message.embeds[0].colour.value
     
     # WYR
     chartWYR = updateWYR(reaction, user, 1, pos_ques, neg_ques)
@@ -169,7 +170,7 @@ async def on_reaction_add(reaction, user):
         opts = reaction.message.embeds[0].fields[0].value.splitlines()
         opt1 = opts[0][6:]
         opt2 = opts[1][6:]
-        newEmbed = discord.Embed(title="Would You Rather...", description="🔥 Bonfire", color=COLOR + 0x1)
+        newEmbed = discord.Embed(title="Would You Rather...", description="🔥 Bonfire", color=curr_color + 0x1)
         valueMessage = ":one: "+ opt1 + "\n:two: " + opt2
         newEmbed.add_field(name="Options: (React to vote!)", value=valueMessage, inline=False)
 
@@ -177,7 +178,7 @@ async def on_reaction_add(reaction, user):
         await channel.send(embed = embedVar, file = chartWYR)
     
     # NHIE
-    chartNHIE = updateNHIE(reaction, user, nhie_col)
+    chartNHIE = updateNHIE(reaction, user, 1, nhie_col)
     if chartNHIE is not None:
         embedVar = discord.Embed(title="NHIE Results", description="🔥 Bonfire", color=COLOR)
         embedVar.set_image(
@@ -193,6 +194,7 @@ async def on_reaction_add(reaction, user):
 @bot.event
 async def on_reaction_remove(reaction, user):
     updateWYR(reaction, user, -1, pos_ques, neg_ques)
+    updateNHIE(reaction, user, -1, nhie_col)
 
 ##### RUN #####
 
