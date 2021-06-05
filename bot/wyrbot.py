@@ -5,7 +5,6 @@ from pymongo import MongoClient
 from discord.ext import commands
 from discord.utils import get
 from prepCommands import * 
-from tokens import *
 
 ##### BOT ASSETS #####
 
@@ -20,7 +19,7 @@ bot.remove_command('help')
 
 ##### MONGODB CLIENT CONNECTION #####
 
-client = MongoClient("mongodb+srv://bonfire_app:"+DB_PASS+"@cluster0.ctzl1.mongodb.net/?retryWrites=true&w=majority")
+client = MongoClient("mongodb+srv://bonfire_app:"+os.environ["DB_PASS"]+"@cluster0.ctzl1.mongodb.net/?retryWrites=true&w=majority")
 
 wyr = client.wyr
 tod = client.truth_or_dare
@@ -200,7 +199,7 @@ async def on_reaction_remove(reaction, user):
 
 def main():
     print("Bot ready")
-    bot.run(AUTH_TOKEN)
+    bot.run(os.environ["AUTH_TOKEN"])
 
 if __name__ == '__main__':
     main()
