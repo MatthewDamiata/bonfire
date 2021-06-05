@@ -3,3 +3,4 @@
 ### Matthew Damiata & Christian Riewerts
 #### Website live at [bonfire.42web.io](http://www.bonfire.42web.io/)
 #### Bot coming to production soon! Check back later.
+##### Check out our [wiki](https://github.com/MatthewDamiata/bonfire/wiki) for more information on the commands
